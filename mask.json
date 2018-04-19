@@ -1,0 +1,20 @@
+{
+    "LED" : {
+        "mask" : 2.9
+    },
+
+    "PS" : {
+        "3.3" : {
+            "nominal": 3.3,
+            "tolerance": 0.33
+        },
+        "5.0" : {
+            "nominal": 5.0,
+            "tolerance": 0.5
+        }
+    },
+
+    "ETHERNET" : {
+        "message" : "Test msg!"
+    }
+}
