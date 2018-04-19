@@ -50,9 +50,9 @@ class RFFEuC_Test(object):
         #Reset RFFEuC
         self.ser.setDTR(True)
         self.ser.setRTS(False)
-        time.sleep(0.5)
+        time.sleep(0.1)
         self.ser.setRTS(True)
-        time.sleep(0.5)
+        time.sleep(0.1)
 
         #Start tests
         self.ser.write(b's')
