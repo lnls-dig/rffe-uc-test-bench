@@ -66,7 +66,7 @@ class RFFEuC_Test(object):
 
     def LED_parse(self):
         ind = [i for i, elem in enumerate(self.log) if '[LED]' in elem]
-        self.test_results['LED'] = {}
+        self.test_results['LED'] = OrderedDict()
         for i in ind:
             regex = re.findall(r"\d*\.?\d+", self.log[i])
             if len(regex) > 0:
@@ -81,14 +81,15 @@ class RFFEuC_Test(object):
         self.test_results['LED']['result'] = res
 
     def GPIOLoopback_parse(self):
+        self.test_results['GPIO'] = OrderedDict()
         ind = [i for i, elem in enumerate(self.log) if 'Loopback' in elem]
         result = []
-        for i in ind:
+        for t, i in enumerate(ind):
             loop_pair = re.findall(r"\[([^]]+)\]", self.log[i])
             loop_res = re.findall("(Pass|Fail)", self.log[i])
             if len(loop_pair) > 0:
                 result.append([loop_pair, (1 if loop_res[0] == 'Pass' else 0)])
-        self.test_results['GPIO'] = {t:{'pin1':result[t][0][0], 'pin2':result[t][0][1], 'result':result[t][1]} for t in range(len(result))}
+                self.test_results['GPIO'][t] = {'pin1':loop_pair[0],'pin2':loop_pair[1],'result':(1 if loop_res[0] == 'Pass' else 0)}
         #Set the general result to 1 if all the tests passed
         res = 1
         for k,v in self.test_results['GPIO'].items():
@@ -100,7 +101,7 @@ class RFFEuC_Test(object):
 
     def PowerSupply_parse(self):
         ind = [i for i, elem in enumerate(self.log) if 'Power Supply' in elem]
-        self.test_results['PS'] = {}
+        self.test_results['PS'] = OrderedDict()
         for i in ind:
             regex = re.findall(r"\d*\.?\d+", self.log[i])
             if len(regex) > 0:
@@ -133,12 +134,13 @@ class RFFEuC_Test(object):
         self.test_results['FERAM'] = {'pattern': ''.join(rand), 'result': result[0]}
 
     def Ethernet_parse(self):
+        self.test_results['ETHERNET'] = OrderedDict()
         ind = [i for i, elem in enumerate(self.log) if 'Received:' in elem]
         for i in ind:
             regex = re.findall(r'"(.*?)"', self.log[i])
             if len(regex) > 0:
-                self.test_results['ETHERNET'] = {'message': regex[0]}
-                self.test_results['ETHERNET']['result'] = 1 if regex[0] == self.test_mask['ETHERNET']['message'] else 0
+                self.test_results['ETHERNET']['message'] = regex[0]
+        self.test_results['ETHERNET']['result'] = 1 if self.test_results['ETHERNET']['message'] == self.test_mask['ETHERNET']['message'] else 0
         self.test_results['ETHERNET']['MAC'] = ':'.join([self.eth_mac[i:i+2] for i in range(0, len(self.eth_mac), 2)])
         self.test_results['ETHERNET']['IP'] = self.eth_ip
         self.test_results['ETHERNET']['Gateway'] = self.eth_gateway
