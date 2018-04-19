@@ -176,6 +176,4 @@ if __name__ == "__main__":
     #pp.pprint(uc.test_results)
 
     rep = RFFEuC_Report(uc.test_results, "0", "1")
-    rep.generate()
-
-
+    rep.generate('./test_report')

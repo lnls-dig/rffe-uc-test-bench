@@ -2,8 +2,9 @@ from pylatex.base_classes import Environment, CommandBase, Arguments
 from pylatex.package import Package
 from pylatex import Document, Section, Subsection, Subsubsection, UnsafeCommand, Command, Tabular, Center, MultiColumn, Alignat
 from pylatex.utils import NoEscape, italic, bold
-
+import pathlib
 import binascii
+import os
 from datetime import datetime
 
 class TestDateCommand(CommandBase):
@@ -192,11 +193,20 @@ class RFFEuC_Report(object):
                         tbl.add_row(ascii_str, hex_str, ('Pass' if self.test_results['ETHERNET']['result'] else 'Fail'), color=('green' if self.test_results['ETHERNET']['result'] else 'red'))
                         tbl.add_hline()
 
-    def generate(self):
+    def generate(self, file_dir='./reports/', file_name='report1'):
         self.header()
         self.LED_report()
         self.GPIOLoopback_report()
         self.PowerSupply_report()
         self.FERAM_report()
         self.Ethernet_report()
-        self.doc.generate_pdf('test_report', clean_tex=False)
+
+        file_dir_abs = os.path.abspath(os.path.expanduser(file_dir))
+        if file_name.lower().endswith('.pdf'):
+            raise NameError('File name must not have an extension!')
+        pathlib.Path(file_dir_abs).mkdir(parents=True, exist_ok=True)
+
+        report_full_name = file_dir_abs+'/'+file_name
+        print('Saving report to '+report_full_name+'.pdf')
+
+        self.doc.generate_pdf(report_full_name)
