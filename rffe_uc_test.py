@@ -53,41 +53,15 @@ class RFFEuC_Test(object):
             self.log.append(ln)
             if (ln.find("Insert MAC:") > -1):
                 self.ser.write(bytes(self.eth_mac+'\r\n','ascii'))
-                break
-        while True:
-            ln = self.ser.readline().decode('ascii')
-            self.log.append(ln)
-            if (ln.find("Insert IP:") > -1):
+            elif (ln.find("Insert IP:") > -1):
                 self.ser.write(bytes(self.eth_ip+'\n','ascii'))
-                break
-
-        while True:
-            ln = self.ser.readline().decode('ascii')
-            self.log.append(ln)
-            if (ln.find("Insert Mask:") > -1):
+            elif (ln.find("Insert Mask:") > -1):
                 self.ser.write(bytes(self.eth_mask+'\n','ascii'))
-                break
-
-        while True:
-            ln = self.ser.readline().decode('ascii')
-            self.log.append(ln)
-            if (ln.find("Insert Gateway:") > -1):
+            elif (ln.find("Insert Gateway:") > -1):
                 self.ser.write(bytes(self.eth_gateway+'\n','ascii'))
-                break
-
-        while True:
-            ln = self.ser.readline().decode('ascii')
-            #print(ln)
-            self.log.append(ln)
-            if (ln.find("Listening on port: 6791") > -1):
+            elif (ln.find("Listening on port: 6791") > -1):
                 self.eth_test()
-                break
-
-        while True:
-            ln = self.ser.readline().decode('ascii')
-            #print(ln)
-            self.log.append(ln)
-            if (ln.find("End of tests!") > -1):
+            elif (ln.find("End of tests!") > -1):
                 break
 
     def LED_parse(self):
