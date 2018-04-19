@@ -1,0 +1,10 @@
+#Temporary files
+*~
+
+#Python
+*.pyc
+__pycache__/*
+
+#Output files
+*.tex
+*.pdf
