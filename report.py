@@ -23,7 +23,7 @@ class RFFEuC_Report(object):
         self.date = date
         self.uc_sn = uc_sn
         self.testboard_sn = testboard_sn
-        self.doc = Document(default_filepath='~/rep/rffe-uc-test-bench/', page_numbers=False)
+        self.doc = Document(default_filepath='./', page_numbers=False)
         self.test_results = test_results
 
     def header(self):
@@ -43,13 +43,19 @@ class RFFEuC_Report(object):
             with self.doc.create(Center()) as centered:
                 with centered.create(Tabular('|l|l|',row_height=1.2)) as tbl:
                     tbl.add_hline()
-                    tbl.add_row(bold('Board S/N'), self.uc_sn)
+                    tbl.add_row(bold('Operator'), self.test_results['Operator'])
+                    tbl.add_hline()
+                    tbl.add_row(bold('Board SN'), self.test_results['Board SN'])
+                    tbl.add_hline()
+                    tbl.add_row(bold('Testboard SN'), self.test_results['Testboard SN'])
+                    tbl.add_hline()
+                    tbl.add_row(bold('Test SW commit'), self.test_results['Test SW commit'])
                     tbl.add_hline()
                     tbl.add_row(bold('IP'), self.test_results['ETHERNET']['IP'])
                     tbl.add_hline()
                     tbl.add_row(bold('MAC'), self.test_results['ETHERNET']['MAC'])
                     tbl.add_hline()
-                    tbl.add_row(bold('Date'), TestDateCommand())
+                    tbl.add_row(bold('Date'), self.test_results['Date'])
                     tbl.add_hline()
 
             self.doc.append(bold('Test Results:\n'))
@@ -81,7 +87,7 @@ class RFFEuC_Report(object):
                         tbl.add_hline()
                         tbl.add_row(bold('LED'), bold('LDR read [V]'), bold('Result'))
                         tbl.add_hline()
-                        for key,val in sorted(self.test_results['LED'].items()):
+                        for key,val in self.test_results['LED'].items():
                             if isinstance(val, dict):
                                 tbl.add_row(bold(key), (val['value']), ('Pass' if val['result'] else 'Fail'), color=('green' if val['result'] else 'red'))
                                 tbl.add_hline()

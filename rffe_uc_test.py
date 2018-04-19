@@ -3,6 +3,8 @@ import time
 import serial
 import re
 import json
+import datetime
+import subprocess
 import os
 import pathlib
 from collections import OrderedDict
@@ -12,7 +14,7 @@ from report import RFFEuC_Report
 
 class RFFEuC_Test(object):
 
-    def __init__(self, eth_conf, serial_port, test_mask_path='mask.json'):
+    def __init__(self, eth_conf, serial_port, operator, test_board_sn, board_sn, test_mask_path='mask.json'):
         self.ser = serial.Serial(serial_port, 115200)
         self.eth_ip = eth_conf[0]
         self.eth_mask = eth_conf[1]
@@ -21,6 +23,12 @@ class RFFEuC_Test(object):
         with open(test_mask_path) as mask_f:
             self.test_mask = json.loads(mask_f.read())
         self.test_results = OrderedDict()
+        self.log = []
+        self.test_results['Operator'] = operator
+        self.test_results['Date'] = str(datetime.datetime.today())
+        self.test_results['Testboard SN'] = str(test_board_sn)
+        self.test_results['Board SN'] = str(board_sn)
+        self.test_results['Test SW commit'] = subprocess.check_output(["git", "describe", "--always"]).strip().decode('ascii')
 
     def eth_connect(self):
         self.eth_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -155,7 +163,7 @@ class RFFEuC_Test(object):
             json.dump(self.test_results, dump_f, indent=4, ensure_ascii=True)
 
 if __name__ == "__main__":
-    uc = RFFEuC_Test(("10.0.18.111", "255.255.255.0", "10.0.18.1", "DE:AD:BE:EF:12:34"), "/dev/ttyUSB0")
+    uc = RFFEuC_Test(("10.0.18.111", "255.255.255.0", "10.0.18.1", "DE:AD:BE:EF:12:34"), "/dev/ttyUSB0", 'Henrique Silva', 'TST0001','UC0001')
     uc.run()
 
     uc.LED_parse()
