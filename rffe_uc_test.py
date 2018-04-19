@@ -3,6 +3,8 @@ import time
 import serial
 import re
 import json
+import os
+import pathlib
 from collections import OrderedDict
 #import pprint
 
@@ -146,6 +148,11 @@ class RFFEuC_Test(object):
         self.test_results['ETHERNET']['Gateway'] = self.eth_gateway
         self.test_results['ETHERNET']['Mask'] = self.eth_mask
 
+    def dump(self, path):
+        dump_abs = os.path.abspath(os.path.expanduser(path))
+        pathlib.Path(os.path.dirname(dump_abs)).mkdir(parents=True, exist_ok=True)
+        with open(dump_abs, 'w') as dump_f:
+            json.dump(self.test_results, dump_f, indent=4, ensure_ascii=True)
 
 if __name__ == "__main__":
     uc = RFFEuC_Test(("10.0.18.111", "255.255.255.0", "10.0.18.1", "DE:AD:BE:EF:12:34"), "/dev/ttyUSB0")
@@ -156,7 +163,7 @@ if __name__ == "__main__":
     uc.PowerSupply_parse()
     uc.Ethernet_parse()
     uc.FeRAM_parse()
-
+    uc.dump('./test_report/results.json')
     #pp = pprint.PrettyPrinter(indent=4)
     #pp.pprint(uc.test_results)
 
