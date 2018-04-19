@@ -44,34 +44,34 @@ class RFFEuC_Report(object):
             with self.doc.create(Center()) as centered:
                 with centered.create(Tabular('|l|l|',row_height=1.2)) as tbl:
                     tbl.add_hline()
-                    tbl.add_row(bold('Operator'), self.test_results['Operator'])
+                    tbl.add_row(bold('Operator'), self.test_results['operator'])
                     tbl.add_hline()
-                    tbl.add_row(bold('Board SN'), self.test_results['Board SN'])
+                    tbl.add_row(bold('Board SN'), self.test_results['boardSN'])
                     tbl.add_hline()
-                    tbl.add_row(bold('Testboard SN'), self.test_results['Testboard SN'])
+                    tbl.add_row(bold('Testboard SN'), self.test_results['testBoardSN'])
                     tbl.add_hline()
-                    tbl.add_row(bold('Test SW commit'), self.test_results['Test SW commit'])
+                    tbl.add_row(bold('Test SW commit'), self.test_results['testSWCommit'])
                     tbl.add_hline()
-                    tbl.add_row(bold('IP'), self.test_results['ETHERNET']['IP'])
+                    tbl.add_row(bold('IP'), self.test_results['ethernet']['ip'])
                     tbl.add_hline()
-                    tbl.add_row(bold('MAC'), self.test_results['ETHERNET']['MAC'])
+                    tbl.add_row(bold('MAC'), self.test_results['ethernet']['mac'])
                     tbl.add_hline()
-                    tbl.add_row(bold('Date'), self.test_results['Date'])
+                    tbl.add_row(bold('Date'), self.test_results['date'])
                     tbl.add_hline()
 
             self.doc.append(bold('Test Results:\n'))
             with self.doc.create(Center()) as centered:
                 with centered.create(Tabular('|l|c|',row_height=1.2)) as tbl:
                     tbl.add_hline()
-                    tbl.add_row(bold('LED'), ('Pass' if self.test_results['LED']['result'] else 'Fail'), color=('green' if self.test_results['LED']['result'] else 'red'))
+                    tbl.add_row(bold('LED'), ('Pass' if self.test_results['led']['result'] else 'Fail'), color=('green' if self.test_results['led']['result'] else 'red'))
                     tbl.add_hline()
-                    tbl.add_row(bold('GPIO Loopback'), ('Pass' if self.test_results['GPIO']['result'] else 'Fail'), color=('green' if self.test_results['GPIO']['result'] else 'red'))
+                    tbl.add_row(bold('GPIO Loopback'), ('Pass' if self.test_results['gpio']['result'] else 'Fail'), color=('green' if self.test_results['gpio']['result'] else 'red'))
                     tbl.add_hline()
-                    tbl.add_row(bold('Power Supply'), ('Pass' if self.test_results['PS']['result'] else 'Fail'), color=('green' if self.test_results['PS']['result'] else 'red'))
+                    tbl.add_row(bold('Power Supply'), ('Pass' if self.test_results['powerSupply']['result'] else 'Fail'), color=('green' if self.test_results['powerSupply']['result'] else 'red'))
                     tbl.add_hline()
-                    tbl.add_row(bold('FeRAM'), ('Pass' if self.test_results['FERAM']['result'] else 'Fail'), color=('green' if self.test_results['FERAM']['result'] else 'red'))
+                    tbl.add_row(bold('FeRAM'), ('Pass' if self.test_results['feram']['result'] else 'Fail'), color=('green' if self.test_results['feram']['result'] else 'red'))
                     tbl.add_hline()
-                    tbl.add_row(bold('Ethernet'), ('Pass' if self.test_results['ETHERNET']['result'] else 'Fail'), color=('green' if self.test_results['ETHERNET']['result'] else 'red'))
+                    tbl.add_row(bold('Ethernet'), ('Pass' if self.test_results['ethernet']['result'] else 'Fail'), color=('green' if self.test_results['ethernet']['result'] else 'red'))
                     tbl.add_hline()
 
     def LED_report(self):
@@ -88,7 +88,7 @@ class RFFEuC_Report(object):
                         tbl.add_hline()
                         tbl.add_row(bold('LED'), bold('LDR read [V]'), bold('Result'))
                         tbl.add_hline()
-                        for key,val in self.test_results['LED'].items():
+                        for key,val in self.test_results['led'].items():
                             if isinstance(val, dict):
                                 tbl.add_row(bold(key), (val['value']), ('Pass' if val['result'] else 'Fail'), color=('green' if val['result'] else 'red'))
                                 tbl.add_hline()
@@ -107,7 +107,7 @@ class RFFEuC_Report(object):
                         tbl.add_hline()
                         tbl.add_row((MultiColumn(2, align='|c|', data=bold('Loopback Pair')), bold('Result')))
                         tbl.add_hline()
-                        for key,val in self.test_results['GPIO'].items():
+                        for key,val in self.test_results['gpio'].items():
                             if isinstance(val, dict):
                                 tbl.add_row(val['pin1'], val['pin2'], ('Pass' if val['result'] else 'Fail'), color=('green' if val['result'] else 'red'))
                                 tbl.add_hline()
@@ -127,7 +127,7 @@ class RFFEuC_Report(object):
                         tbl.add_hline()
                         tbl.add_row(bold('Power Supply'), bold('Measured [V]'), bold('Result') )
                         tbl.add_hline()
-                        for key,val in self.test_results['PS'].items():
+                        for key,val in self.test_results['powerSupply'].items():
                             if isinstance(val, dict):
                                 tbl.add_row(bold(key+'V'), val['value'] ,('Pass' if val['result'] else 'Fail'), color=('green' if val['result'] else 'red'))
                                 tbl.add_hline()
@@ -145,7 +145,7 @@ class RFFEuC_Report(object):
                         tbl.add_hline()
                         tbl.add_row((bold('Random Pattern'),))
                         tbl.add_hline()
-                        result_str = [ ''.join(self.test_results['FERAM']['pattern'][i:i+16]) for i in range(0, len(self.test_results['FERAM']['pattern']), 16) ]
+                        result_str = [ ''.join(self.test_results['feram']['pattern'][i:i+16]) for i in range(0, len(self.test_results['feram']['pattern']), 16) ]
                         for item in result_str:
                             tbl.add_row(((item),))
                         tbl.add_hline()
@@ -155,12 +155,12 @@ class RFFEuC_Report(object):
                         tbl.add_hline()
                         tbl.add_row((bold('Result'),))
                         tbl.add_hline()
-                        tbl.add_row((('Pass' if self.test_results['FERAM']['result'] else 'Fail'),), color=('green' if self.test_results['FERAM']['result'] else 'red') )
+                        tbl.add_row((('Pass' if self.test_results['feram']['result'] else 'Fail'),), color=('green' if self.test_results['feram']['result'] else 'red') )
                         tbl.add_hline()
 
     def Ethernet_report(self):
-        hex_str = str(binascii.hexlify(self.test_results['ETHERNET']['message'].encode('ascii')),'ascii')
-        ascii_str = self.test_results['ETHERNET']['message']
+        hex_str = str(binascii.hexlify(self.test_results['ethernet']['message'].encode('ascii')),'ascii')
+        ascii_str = self.test_results['ethernet']['message']
 
         self.doc.append(NoEscape(r'\clearpage'))
         with self.doc.create(Section('Ethernet')):
@@ -182,7 +182,7 @@ class RFFEuC_Report(object):
                         tbl.add_hline()
                         tbl.add_row(bold('MAC'), bold('IP'), bold('Gateway'), bold('Mask') )
                         tbl.add_hline()
-                        tbl.add_row(self.test_results['ETHERNET']['MAC'], self.test_results['ETHERNET']['IP'], self.test_results['ETHERNET']['Gateway'], self.test_results['ETHERNET']['Mask'])
+                        tbl.add_row(self.test_results['ethernet']['mac'], self.test_results['ethernet']['ip'], self.test_results['ethernet']['gateway'], self.test_results['ethernet']['mask'])
                         tbl.add_hline()
 
                 with self.doc.create(Center()) as centered:
@@ -190,7 +190,7 @@ class RFFEuC_Report(object):
                         tbl.add_hline()
                         tbl.add_row(bold('Received String'), bold('Hexadecimal'), bold('Result') )
                         tbl.add_hline()
-                        tbl.add_row(ascii_str, hex_str, ('Pass' if self.test_results['ETHERNET']['result'] else 'Fail'), color=('green' if self.test_results['ETHERNET']['result'] else 'red'))
+                        tbl.add_row(ascii_str, hex_str, ('Pass' if self.test_results['ethernet']['result'] else 'Fail'), color=('green' if self.test_results['ethernet']['result'] else 'red'))
                         tbl.add_hline()
 
     def generate(self, file_dir='./reports/', file_name='report1'):

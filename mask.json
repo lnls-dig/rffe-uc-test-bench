@@ -1,9 +1,9 @@
 {
-    "LED" : {
+    "led" : {
         "mask" : 2.9
     },
 
-    "PS" : {
+    "powerSupply" : {
         "3.3" : {
             "nominal": 3.3,
             "tolerance": 0.33
@@ -14,7 +14,7 @@
         }
     },
 
-    "ETHERNET" : {
+    "ethernet" : {
         "message" : "Test msg!"
     }
 }

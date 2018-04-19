@@ -15,20 +15,22 @@ from report import RFFEuC_Report
 class RFFEuC_Test(object):
 
     def __init__(self, eth_conf, serial_port, operator, test_board_sn, board_sn, test_mask_path='mask.json'):
+        self.log = []
         self.ser = serial.Serial(serial_port, 115200)
         self.eth_ip = eth_conf[0]
         self.eth_mask = eth_conf[1]
         self.eth_gateway = eth_conf[2]
         self.eth_mac = eth_conf[3].replace(":","")
+
         with open(test_mask_path) as mask_f:
             self.test_mask = json.loads(mask_f.read())
+
         self.test_results = OrderedDict()
-        self.log = []
-        self.test_results['Operator'] = operator
-        self.test_results['Date'] = str(datetime.datetime.today())
-        self.test_results['Testboard SN'] = str(test_board_sn)
-        self.test_results['Board SN'] = str(board_sn)
-        self.test_results['Test SW commit'] = subprocess.check_output(["git", "describe", "--always"]).strip().decode('ascii')
+        self.test_results['operator'] = operator
+        self.test_results['date'] = str(datetime.datetime.today())
+        self.test_results['testBoardSN'] = str(test_board_sn)
+        self.test_results['boardSN'] = str(board_sn)
+        self.test_results['testSWCommit'] = subprocess.check_output(["git", "describe", "--always"]).strip().decode('ascii')
 
     def eth_connect(self):
         self.eth_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -76,22 +78,22 @@ class RFFEuC_Test(object):
 
     def LED_parse(self):
         ind = [i for i, elem in enumerate(self.log) if '[LED]' in elem]
-        self.test_results['LED'] = OrderedDict()
+        self.test_results['led'] = OrderedDict()
         for i in ind:
             regex = re.findall(r"\d*\.?\d+", self.log[i])
             if len(regex) > 0:
-                self.test_results['LED'][regex[0]] = {'value':float(regex[1])}
-                self.test_results['LED'][regex[0]]['result'] = (1 if self.test_results['LED'][regex[0]]['value'] < self.test_mask['LED']['mask'] else 0)
+                self.test_results['led'][regex[0]] = {'value':float(regex[1])}
+                self.test_results['led'][regex[0]]['result'] = (1 if self.test_results['led'][regex[0]]['value'] < self.test_mask['led']['mask'] else 0)
         #Set the general result to 1 if all the tests passed
         res = 1
-        for k,v in self.test_results['LED'].items():
+        for k,v in self.test_results['led'].items():
             for k1,v1 in v.items():
                 if (k1 == 'result'):
                     res &= v1
-        self.test_results['LED']['result'] = res
+        self.test_results['led']['result'] = res
 
     def GPIOLoopback_parse(self):
-        self.test_results['GPIO'] = OrderedDict()
+        self.test_results['gpio'] = OrderedDict()
         ind = [i for i, elem in enumerate(self.log) if 'Loopback' in elem]
         result = []
         for t, i in enumerate(ind):
@@ -99,33 +101,32 @@ class RFFEuC_Test(object):
             loop_res = re.findall("(Pass|Fail)", self.log[i])
             if len(loop_pair) > 0:
                 result.append([loop_pair, (1 if loop_res[0] == 'Pass' else 0)])
-                self.test_results['GPIO'][t] = {'pin1':loop_pair[0],'pin2':loop_pair[1],'result':(1 if loop_res[0] == 'Pass' else 0)}
+                self.test_results['gpio'][t] = {'pin1':loop_pair[0],'pin2':loop_pair[1],'result':(1 if loop_res[0] == 'Pass' else 0)}
         #Set the general result to 1 if all the tests passed
         res = 1
-        for k,v in self.test_results['GPIO'].items():
+        for k,v in self.test_results['gpio'].items():
             for k1,v1 in v.items():
                 if (k1 == 'result'):
                     res &= v1
-        self.test_results['GPIO']['result'] = res
-
+        self.test_results['gpio']['result'] = res
 
     def PowerSupply_parse(self):
         ind = [i for i, elem in enumerate(self.log) if 'Power Supply' in elem]
-        self.test_results['PS'] = OrderedDict()
+        self.test_results['powerSupply'] = OrderedDict()
         for i in ind:
             regex = re.findall(r"\d*\.?\d+", self.log[i])
             if len(regex) > 0:
-                self.test_results['PS'][regex[0]] = {'value':float(regex[1])}
-                low = self.test_mask['PS'][regex[0]]['nominal'] - self.test_mask['PS'][regex[0]]['tolerance']
-                high = self.test_mask['PS'][regex[0]]['nominal'] + self.test_mask['PS'][regex[0]]['tolerance']
-                self.test_results['PS'][regex[0]]['result'] = (1 if (low <= float(regex[1]) <= high) else 0)
+                self.test_results['powerSupply'][regex[0]] = {'value':float(regex[1])}
+                low = self.test_mask['powerSupply'][regex[0]]['nominal'] - self.test_mask['powerSupply'][regex[0]]['tolerance']
+                high = self.test_mask['powerSupply'][regex[0]]['nominal'] + self.test_mask['powerSupply'][regex[0]]['tolerance']
+                self.test_results['powerSupply'][regex[0]]['result'] = (1 if (low <= float(regex[1]) <= high) else 0)
         #Set the general result to 1 if all the tests passed
         res = 1
-        for k,v in self.test_results['PS'].items():
+        for k,v in self.test_results['powerSupply'].items():
             for k1,v1 in v.items():
                 if (k1 == 'result'):
                     res &= v1
-        self.test_results['PS']['result'] = res
+        self.test_results['powerSupply']['result'] = res
 
     def FeRAM_parse(self):
         ind = [i for i, elem in enumerate(self.log) if '[RANDOM]' in elem]
@@ -141,20 +142,20 @@ class RFFEuC_Test(object):
             regex = re.findall("(Pass|Fail)", self.log[i])
             if len(regex) > 0:
                 result.append(1 if regex[0] == 'Pass' else 0)
-        self.test_results['FERAM'] = {'pattern': ''.join(rand), 'result': result[0]}
+        self.test_results['feram'] = {'pattern': ''.join(rand), 'result': result[0]}
 
     def Ethernet_parse(self):
-        self.test_results['ETHERNET'] = OrderedDict()
+        self.test_results['ethernet'] = OrderedDict()
         ind = [i for i, elem in enumerate(self.log) if 'Received:' in elem]
         for i in ind:
             regex = re.findall(r'"(.*?)"', self.log[i])
             if len(regex) > 0:
-                self.test_results['ETHERNET']['message'] = regex[0]
-        self.test_results['ETHERNET']['result'] = 1 if self.test_results['ETHERNET']['message'] == self.test_mask['ETHERNET']['message'] else 0
-        self.test_results['ETHERNET']['MAC'] = ':'.join([self.eth_mac[i:i+2] for i in range(0, len(self.eth_mac), 2)])
-        self.test_results['ETHERNET']['IP'] = self.eth_ip
-        self.test_results['ETHERNET']['Gateway'] = self.eth_gateway
-        self.test_results['ETHERNET']['Mask'] = self.eth_mask
+                self.test_results['ethernet']['message'] = regex[0]
+        self.test_results['ethernet']['result'] = 1 if self.test_results['ethernet']['message'] == self.test_mask['ethernet']['message'] else 0
+        self.test_results['ethernet']['mac'] = ':'.join([self.eth_mac[i:i+2] for i in range(0, len(self.eth_mac), 2)])
+        self.test_results['ethernet']['ip'] = self.eth_ip
+        self.test_results['ethernet']['gateway'] = self.eth_gateway
+        self.test_results['ethernet']['mask'] = self.eth_mask
 
     def dump(self, path):
         dump_abs = os.path.abspath(os.path.expanduser(path))
