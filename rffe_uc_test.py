@@ -33,7 +33,7 @@ class RFFEuC_Test(object):
         self.test_results['date'] = str(datetime.datetime.today())
         self.test_results['testBoardSN'] = str(test_board_sn)
         self.test_results['boardSN'] = str(board_sn)
-        self.test_results['testSWCommit'] = subprocess.check_output(["git", "describe", "--always"]).strip().decode('ascii')
+        self.test_results['testSWCommit'] = subprocess.check_output(["git", "describe", "--always"]).strip().decode('ascii').upper()
 
     def eth_connect(self):
         self.eth_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
