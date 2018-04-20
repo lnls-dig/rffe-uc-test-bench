@@ -1,22 +1,10 @@
-from pylatex.base_classes import Environment, CommandBase, Arguments
 from pylatex.package import Package
-from pylatex import Document, Section, Subsection, Subsubsection, UnsafeCommand, Command, Tabular, Center, MultiColumn, Alignat
+from pylatex import Document, Section, Subsection, Subsubsection, Command, Tabular, Center, MultiColumn, Alignat
 from pylatex.utils import NoEscape, italic, bold
+from datetime import datetime
 import pathlib
 import binascii
 import os
-from datetime import datetime
-
-class TestDateCommand(CommandBase):
-    """
-    A class representing a custom LaTeX command.
-
-    This class represents a custom LaTeX command named
-    ``testdate``.
-    """
-
-    _latex_name = 'testdate'
-    packages = [Package('datetime')]
 
 class RFFEuC_Report(object):
 
@@ -28,16 +16,10 @@ class RFFEuC_Report(object):
         self.test_results = test_results
 
     def header(self):
-        self.doc.packages.append(Package('datetime', ['nodayofweek','level','ddmmyyyy']))
         #Title
         self.doc.preamble.append(Command('title', 'RFFEuC Test Report'))
         self.doc.preamble.append(Command('date', NoEscape(r'')))
         self.doc.append(NoEscape(r'\maketitle'))
-
-        #New command to include date of the test
-        test_date_cmd = UnsafeCommand('newcommand', r'\testdate', options=0,
-                                      extra_arguments="\\formatdate{{{}}}{{{}}}{{{}}} - \currenttime".format(self.date.day, self.date.month, self.date.year))
-        self.doc.append(test_date_cmd)
 
         with self.doc.create(Section('', numbering=False)):
             self.doc.append(bold('Board information:\n'))
