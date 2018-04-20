@@ -75,6 +75,7 @@ class RFFEuC_Test(object):
                 self.eth_test()
             elif (ln.find("End of tests!") > -1):
                 break
+        return self.parse_results()
 
     def LED_parse(self):
         ind = [i for i, elem in enumerate(self.log) if '[LED]' in elem]
@@ -157,6 +158,22 @@ class RFFEuC_Test(object):
         self.test_results['ethernet']['gateway'] = self.eth_gateway
         self.test_results['ethernet']['mask'] = self.eth_mask
 
+    def parse_results(self):
+        self.LED_parse()
+        self.GPIOLoopback_parse()
+        self.PowerSupply_parse()
+        self.Ethernet_parse()
+        self.FeRAM_parse()
+
+        res = 1
+        for k,v in self.test_results.items():
+            if isinstance(v, dict):
+                for k1,v1 in v.items():
+                    if (k1 == 'result'):
+                        res &= v1
+        self.test_results['result'] = res
+        return res
+
     def dump(self, path):
         dump_abs = os.path.abspath(os.path.expanduser(path))
         pathlib.Path(os.path.dirname(dump_abs)).mkdir(parents=True, exist_ok=True)
@@ -167,12 +184,8 @@ if __name__ == "__main__":
     uc = RFFEuC_Test(("10.0.18.111", "255.255.255.0", "10.0.18.1", "DE:AD:BE:EF:12:34"), "/dev/ttyUSB0", 'Henrique Silva', 'TST0001','UC0001')
     uc.run()
 
-    uc.LED_parse()
-    uc.GPIOLoopback_parse()
-    uc.PowerSupply_parse()
-    uc.Ethernet_parse()
-    uc.FeRAM_parse()
-    uc.dump('./test_report/results.json')
+    #uc.dump('./test_report/results.json')
+
     #pp = pprint.PrettyPrinter(indent=4)
     #pp.pprint(uc.test_results)
 
