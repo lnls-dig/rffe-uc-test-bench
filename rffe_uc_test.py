@@ -8,15 +8,18 @@ import subprocess
 import os
 import pathlib
 from collections import OrderedDict
+from lpc21isp import LPCProg
 #import pprint
 
 from report import RFFEuC_Report
 
 class RFFEuC_Test(object):
 
+    TEST_FW_PATH='../rffe-uc-test-fw/BUILD/rffe-uc-test-fw.bin'
+
     def __init__(self, eth_conf, serial_port, operator, test_board_sn, board_sn, test_mask_path='mask.json'):
         self.log = []
-        self.ser = serial.Serial(serial_port, 115200)
+        self.serial_port = serial_port
         self.eth_ip = eth_conf[0]
         self.eth_mask = eth_conf[1]
         self.eth_gateway = eth_conf[2]
@@ -45,32 +48,42 @@ class RFFEuC_Test(object):
         self.eth_sock.shutdown(socket.SHUT_RDWR)
         self.eth_sock.close()
 
+    def program_fw(self, fw):
+        programmer = LPCProg(self.serial_port,bin_path='../lpc21isp/lpc21isp')
+        print('Programming firmware to LPC...')
+        programmer.program(fw)
+        print('Sucess!')
+
     def run(self):
+        self.program_fw(self.TEST_FW_PATH)
+
+        print('Starting tests...')
         self.log = []
-        self.ser.flush()
+        ser = serial.Serial(self.serial_port, 115200)
+        ser.flush()
 
         #Reset RFFEuC
-        self.ser.setDTR(True)
-        self.ser.setRTS(False)
+        ser.setDTR(True)
+        ser.setRTS(False)
         time.sleep(0.1)
-        self.ser.setRTS(True)
+        ser.setRTS(True)
         time.sleep(0.1)
 
         #Start tests
-        self.ser.write(b's')
-        ln = self.ser.read(50)
+        ser.write(b's')
+        ln = ser.read(50)
 
         while True:
-            ln = self.ser.readline().decode('ascii')
+            ln = ser.readline().decode('ascii')
             self.log.append(ln)
             if (ln.find("Insert MAC:") > -1):
-                self.ser.write(bytes(self.eth_mac+'\r\n','ascii'))
+                ser.write(bytes(self.eth_mac+'\r\n','ascii'))
             elif (ln.find("Insert IP:") > -1):
-                self.ser.write(bytes(self.eth_ip+'\n','ascii'))
+                ser.write(bytes(self.eth_ip+'\n','ascii'))
             elif (ln.find("Insert Mask:") > -1):
-                self.ser.write(bytes(self.eth_mask+'\n','ascii'))
+                ser.write(bytes(self.eth_mask+'\n','ascii'))
             elif (ln.find("Insert Gateway:") > -1):
-                self.ser.write(bytes(self.eth_gateway+'\n','ascii'))
+                ser.write(bytes(self.eth_gateway+'\n','ascii'))
             elif (ln.find("Listening on port: 6791") > -1):
                 self.eth_test()
             elif (ln.find("End of tests!") > -1):
