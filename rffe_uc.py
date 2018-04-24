@@ -57,7 +57,7 @@ class RFFEuC_Test(object):
         programmer.program(fw)
         print('Sucess!')
 
-    def run(self):
+    def run(self, report_path='./reports/'):
         self.program_fw(self.TEST_FW_PATH)
 
         print('Starting tests...')
@@ -91,7 +91,10 @@ class RFFEuC_Test(object):
                 self.eth_test()
             elif (ln.find('End of tests!') > -1):
                 break
-        return self.parse_results()
+
+        result = self.parse_results()
+        self.report(report_path, self.test_results['boardSN'])
+        return result
 
     def LED_parse(self):
         ind = [i for i, elem in enumerate(self.log) if '[LED]' in elem]
@@ -189,6 +192,10 @@ class RFFEuC_Test(object):
                         res &= v1
         self.test_results['result'] = res
         return res
+
+    def report(self, file_dir, file_name):
+        rep = RFFEuC_Report(self.test_results)
+        rep.generate(file_dir, file_name)
 
     def dump(self, path):
         dump_abs = os.path.abspath(os.path.expanduser(path))
