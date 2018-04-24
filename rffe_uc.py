@@ -8,9 +8,7 @@ import subprocess
 import os
 import pathlib
 from collections import OrderedDict
-#from lpc21isp import LPCProg
-from lpclink import LPCLink2
-#import pprint
+from lpclink2_py.lpclink import LPCLink2
 
 from report import RFFEuC_Report
 

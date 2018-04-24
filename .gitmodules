@@ -1,0 +1,3 @@
+[submodule "lpclink2_py"]
+	path = lpclink2_py
+	url = https://github.com/lnls-dig/lpclink2_py
