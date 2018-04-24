@@ -23,7 +23,7 @@ class RFFEuC_Test(object):
         self.eth_ip = eth_conf[0]
         self.eth_mask = eth_conf[1]
         self.eth_gateway = eth_conf[2]
-        self.eth_mac = eth_conf[3].replace(":","")
+        self.eth_mac = str(eth_conf[3]).replace(':','')
 
         with open(test_mask_path) as mask_f:
             self.test_mask = json.loads(mask_f.read())
@@ -34,8 +34,8 @@ class RFFEuC_Test(object):
         self.test_results['testBoardSN'] = str(test_board_sn)
         self.test_results['testBoardPN'] = 'RFFEuC_Tester:1.1'
         self.test_results['boardSN'] = str(board_sn)
-        self.test_results['testSWCommit'] = subprocess.check_output(["git", "describe", "--always"]).strip().decode('ascii').upper()
         self.test_results['boardPN'] = 'RFFEuC:1.2'
+        self.test_results['testSWCommit'] = subprocess.check_output(['git', 'describe', '--always']).strip().decode('ascii').upper()
 
     def eth_connect(self):
         self.eth_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -46,7 +46,7 @@ class RFFEuC_Test(object):
 
     def eth_test(self):
         self.eth_connect()
-        self.eth_sock.send(b"Test msg!\0")
+        self.eth_sock.send(b'Test msg!\0')
         self.eth_sock.shutdown(socket.SHUT_RDWR)
         self.eth_sock.close()
 
@@ -78,17 +78,17 @@ class RFFEuC_Test(object):
         while True:
             ln = ser.readline().decode('ascii')
             self.log.append(ln)
-            if (ln.find("Insert MAC:") > -1):
+            if (ln.find('Insert MAC:') > -1):
                 ser.write(bytes(self.eth_mac+'\r\n','ascii'))
-            elif (ln.find("Insert IP:") > -1):
+            elif (ln.find('Insert IP:') > -1):
                 ser.write(bytes(self.eth_ip+'\n','ascii'))
-            elif (ln.find("Insert Mask:") > -1):
+            elif (ln.find('Insert Mask:') > -1):
                 ser.write(bytes(self.eth_mask+'\n','ascii'))
-            elif (ln.find("Insert Gateway:") > -1):
+            elif (ln.find('Insert Gateway:') > -1):
                 ser.write(bytes(self.eth_gateway+'\n','ascii'))
-            elif (ln.find("Listening on port: 6791") > -1):
+            elif (ln.find('Listening on port: 6791') > -1):
                 self.eth_test()
-            elif (ln.find("End of tests!") > -1):
+            elif (ln.find('End of tests!') > -1):
                 break
         return self.parse_results()
 
@@ -96,7 +96,7 @@ class RFFEuC_Test(object):
         ind = [i for i, elem in enumerate(self.log) if '[LED]' in elem]
         self.test_results['led'] = OrderedDict()
         for i in ind:
-            regex = re.findall(r"\d*\.?\d+", self.log[i])
+            regex = re.findall(r'\d*\.?\d+', self.log[i])
             if len(regex) > 0:
                 self.test_results['led'][regex[0]] = {'value':float(regex[1])}
                 self.test_results['led'][regex[0]]['result'] = (1 if self.test_results['led'][regex[0]]['value'] < self.test_mask['led']['mask'] else 0)
@@ -113,8 +113,8 @@ class RFFEuC_Test(object):
         ind = [i for i, elem in enumerate(self.log) if 'Loopback' in elem]
         result = []
         for t, i in enumerate(ind):
-            loop_pair = re.findall(r"\[([^]]+)\]", self.log[i])
-            loop_res = re.findall("(Pass|Fail)", self.log[i])
+            loop_pair = re.findall(r'\[([^]]+)\]', self.log[i])
+            loop_res = re.findall('(Pass|Fail)', self.log[i])
             if len(loop_pair) > 0:
                 result.append([loop_pair, (1 if loop_res[0] == 'Pass' else 0)])
                 self.test_results['gpio'][t] = {'pin1':loop_pair[0],'pin2':loop_pair[1],'result':(1 if loop_res[0] == 'Pass' else 0)}
@@ -130,7 +130,7 @@ class RFFEuC_Test(object):
         ind = [i for i, elem in enumerate(self.log) if 'Power Supply' in elem]
         self.test_results['powerSupply'] = OrderedDict()
         for i in ind:
-            regex = re.findall(r"\d*\.?\d+", self.log[i])
+            regex = re.findall(r'\d*\.?\d+', self.log[i])
             if len(regex) > 0:
                 self.test_results['powerSupply'][regex[0]] = {'value':float(regex[1])}
                 low = self.test_mask['powerSupply'][regex[0]]['nominal'] - self.test_mask['powerSupply'][regex[0]]['tolerance']
@@ -155,7 +155,7 @@ class RFFEuC_Test(object):
         ind = [i for i, elem in enumerate(self.log) if '[FERAM]' in elem]
         result = []
         for i in ind:
-            regex = re.findall("(Pass|Fail)", self.log[i])
+            regex = re.findall('(Pass|Fail)', self.log[i])
             if len(regex) > 0:
                 result.append(1 if regex[0] == 'Pass' else 0)
         self.test_results['feram'] = {'pattern': ''.join(rand), 'result': result[0]}
@@ -204,5 +204,5 @@ if __name__ == '__main__':
     #pp = pprint.PrettyPrinter(indent=4)
     #pp.pprint(uc.test_results)
 
-    rep = RFFEuC_Report(uc.test_results, "0", "1")
-    rep.generate('./test_report')
+    rep = RFFEuC_Report(uc.test_results)
+    rep.generate(file_name='CN00001')
