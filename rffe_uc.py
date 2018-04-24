@@ -8,7 +8,8 @@ import subprocess
 import os
 import pathlib
 from collections import OrderedDict
-from lpc21isp import LPCProg
+#from lpc21isp import LPCProg
+from lpclink import LPCLink
 #import pprint
 
 from report import RFFEuC_Report
@@ -51,7 +52,7 @@ class RFFEuC_Test(object):
         self.eth_sock.close()
 
     def program_fw(self, fw):
-        programmer = LPCProg(self.serial_port,bin_path='../lpc21isp/lpc21isp')
+        programmer = LPCLink()
         print('Programming firmware to LPC...')
         programmer.program(fw)
         print('Sucess!')
