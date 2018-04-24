@@ -8,10 +8,8 @@ import os
 
 class RFFEuC_Report(object):
 
-    def __init__(self, test_results, uc_sn, testboard_sn, date=datetime.today()):
+    def __init__(self, test_results, date=datetime.today()):
         self.date = date
-        self.uc_sn = uc_sn
-        self.testboard_sn = testboard_sn
         self.doc = Document(default_filepath='./', page_numbers=False)
         self.test_results = test_results
 
@@ -28,11 +26,11 @@ class RFFEuC_Report(object):
                     tbl.add_hline()
                     tbl.add_row(bold('Operator'), self.test_results['operator'])
                     tbl.add_hline()
-                    tbl.add_row(bold('Board SN'), self.test_results['boardSN'])
+                    tbl.add_row(bold('Board PN/SN'), ':'.join([self.test_results['boardPN'],self.test_results['boardSN']]))
                     tbl.add_hline()
-                    tbl.add_row(bold('Testboard SN'), self.test_results['testBoardSN'])
+                    tbl.add_row(bold('Testboard PN/SN'), ':'.join([self.test_results['testBoardPN'],self.test_results['testBoardSN']]))
                     tbl.add_hline()
-                    tbl.add_row(bold('Test SW commit'), self.test_results['testSWCommit'])
+                    tbl.add_row(bold('TestSW commit'), self.test_results['testSWCommit'])
                     tbl.add_hline()
                     tbl.add_row(bold('IP'), self.test_results['ethernet']['ip'])
                     tbl.add_hline()

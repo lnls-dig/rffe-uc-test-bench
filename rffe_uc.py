@@ -32,8 +32,10 @@ class RFFEuC_Test(object):
         self.test_results['operator'] = operator
         self.test_results['date'] = str(datetime.datetime.today())
         self.test_results['testBoardSN'] = str(test_board_sn)
+        self.test_results['testBoardPN'] = 'RFFEuC_Tester:1.1'
         self.test_results['boardSN'] = str(board_sn)
         self.test_results['testSWCommit'] = subprocess.check_output(["git", "describe", "--always"]).strip().decode('ascii').upper()
+        self.test_results['boardPN'] = 'RFFEuC:1.2'
 
     def eth_connect(self):
         self.eth_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -193,8 +195,8 @@ class RFFEuC_Test(object):
         with open(dump_abs, 'w') as dump_f:
             json.dump(self.test_results, dump_f, indent=4, ensure_ascii=True)
 
-if __name__ == "__main__":
-    uc = RFFEuC_Test(("10.0.18.111", "255.255.255.0", "10.0.18.1", "DE:AD:BE:EF:12:34"), "/dev/ttyUSB0", 'Henrique Silva', 'TST0001','UC0001')
+if __name__ == '__main__':
+    uc = RFFEuC_Test(('10.0.18.111', '255.255.255.0', '10.0.18.1', 'DE:AD:BE:EF:12:34'), '/dev/ttyUSB0', 'Henrique Silva', 'CN00001','CN00001')
     uc.run()
 
     #uc.dump('./test_report/results.json')
