@@ -9,7 +9,7 @@ import os
 import pathlib
 from collections import OrderedDict
 #from lpc21isp import LPCProg
-from lpclink import LPCLink
+from lpclink import LPCLink2
 #import pprint
 
 from report import RFFEuC_Report
@@ -52,7 +52,7 @@ class RFFEuC_Test(object):
         self.eth_sock.close()
 
     def program_fw(self, fw):
-        programmer = LPCLink()
+        programmer = LPCLink2()
         print('Programming firmware to LPC...')
         programmer.program(fw)
         print('Sucess!')
