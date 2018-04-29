@@ -6,8 +6,8 @@ from collections import OrderedDict
 from rffe_uc import RFFEuC_Test
 
 ip_ends = [i for i in range(201,214)]
-#ip_base = '192.168.0.'
-ip_base = '10.0.18.'
+ip_base = '192.168.2.'
+#ip_base = '10.0.18.'
 
 #Code from Chris Olds @ http://code.activestate.com/recipes/442460/
 def increment(s):
