@@ -38,6 +38,8 @@ class RFFEuC_Test(object):
 
     def eth_connect(self):
         self.eth_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        #3sec timeout
+        self.eth_sock.settimeout(5.0)
         try:
             print('Connecting to {}'.format(self.test_mask['ethernet']['testIP']))
             self.eth_sock.connect((self.test_mask['ethernet']['testIP'], 6791))
