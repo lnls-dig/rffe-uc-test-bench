@@ -39,15 +39,21 @@ class RFFEuC_Test(object):
     def eth_connect(self):
         self.eth_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
-            self.eth_sock.connect((self.eth_ip, 6791))
+            print('Connecting to {}'.format(self.test_mask['ethernet']['testIP']))
+            self.eth_sock.connect((self.test_mask['ethernet']['testIP'], 6791))
+            return True
         except:
-            raise
+            print ('Fail to connect!')
+            return False
 
     def eth_test(self):
-        self.eth_connect()
-        self.eth_sock.send(b'Test msg!\0')
-        self.eth_sock.shutdown(socket.SHUT_RDWR)
-        self.eth_sock.close()
+        if self.eth_connect():
+            self.eth_sock.send(b'Test msg!\0')
+            self.eth_sock.shutdown(socket.SHUT_RDWR)
+            self.eth_sock.close()
+            return True
+        else:
+            return False
 
     def program_fw(self, fw):
         programmer = LPCLink2()
@@ -80,17 +86,54 @@ class RFFEuC_Test(object):
             if (ln.find('Insert MAC:') > -1):
                 ser.write(bytes(self.eth_mac+'\r\n','ascii'))
             elif (ln.find('Insert IP:') > -1):
-                ser.write(bytes(self.eth_ip+'\n','ascii'))
+                ser.write(bytes(self.test_mask['ethernet']['testIP']+'\n','ascii'))
             elif (ln.find('Insert Mask:') > -1):
-                ser.write(bytes(self.eth_mask+'\n','ascii'))
+                ser.write(bytes(self.test_mask['ethernet']['testMask']+'\n','ascii'))
             elif (ln.find('Insert Gateway:') > -1):
-                ser.write(bytes(self.eth_gateway+'\n','ascii'))
+                ser.write(bytes(self.test_mask['ethernet']['testGateway']+'\n','ascii'))
             elif (ln.find('Listening on port: 6791') > -1):
-                self.eth_test()
+                if not self.eth_test():
+                    break
             elif (ln.find('End of tests!') > -1):
                 break
 
         result = self.parse_results()
+        if result:
+            self.program_fw(self.DEPLOY_FW_PATH+'/'+self.eth_ip+'/rffe_uc_fw.bin')
+            self.test_results['ethernet']['deployIP'] = self.eth_ip
+            self.test_results['ethernet']['deployMask'] = self.eth_mask
+            self.test_results['ethernet']['deployGateway'] = self.eth_gateway
+        else:
+            self.program_fw(self.DEPLOY_FW_PATH+'/'+self.test_mask['ethernet']['genericIP']+'/rffe_uc_fw.bin')
+            self.test_results['ethernet']['deployIP'] = self.test_mask['ethernet']['genericIP']
+            self.test_results['ethernet']['deployMask'] = self.test_mask['ethernet']['genericMask']
+            self.test_results['ethernet']['deployGateway'] = self.test_mask['ethernet']['genericGateway']
+
+        #Reset RFFEuC
+        ser.setDTR(True)
+        ser.setRTS(False)
+        time.sleep(0.1)
+        ser.setRTS(True)
+        time.sleep(0.1)
+
+        #Store ETH information on FERAM
+        ser.write(b'r')
+        ln = ser.read(50)
+
+        while True:
+            ln = ser.readline().decode('ascii')
+            self.log.append(ln)
+            if (ln.find('Insert MAC:') > -1):
+                ser.write(bytes(self.eth_mac+'\r\n','ascii'))
+            elif (ln.find('Insert IP:') > -1):
+                ser.write(bytes(self.test_results['ethernet']['deployIP']+'\n','ascii'))
+            elif (ln.find('Insert Mask:') > -1):
+                ser.write(bytes(self.test_results['ethernet']['deployMask']+'\n','ascii'))
+            elif (ln.find('Insert Gateway:') > -1):
+                ser.write(bytes(self.test_results['ethernet']['deployGateway']+'\n','ascii'))
+            elif (ln.find('End of tests!') > -1):
+                break
+
         self.report(report_path, self.test_results['boardSN'])
         return result
 
@@ -169,11 +212,18 @@ class RFFEuC_Test(object):
             regex = re.findall(r'"(.*?)"', self.log[i])
             if len(regex) > 0:
                 self.test_results['ethernet']['message'] = regex[0]
+
+        if 'message' not in self.test_results['ethernet'].keys():
+            self.test_results['ethernet']['message'] = ''
+
         self.test_results['ethernet']['result'] = 1 if self.test_results['ethernet']['message'] == self.test_mask['ethernet']['message'] else 0
         self.test_results['ethernet']['mac'] = ':'.join([self.eth_mac[i:i+2] for i in range(0, len(self.eth_mac), 2)])
-        self.test_results['ethernet']['ip'] = self.eth_ip
-        self.test_results['ethernet']['gateway'] = self.eth_gateway
-        self.test_results['ethernet']['mask'] = self.eth_mask
+        self.test_results['ethernet']['targetIP'] = self.eth_ip
+        self.test_results['ethernet']['targetGateway'] = self.eth_gateway
+        self.test_results['ethernet']['targetMask'] = self.eth_mask
+        self.test_results['ethernet']['testIP'] = self.test_mask['ethernet']['testIP']
+        self.test_results['ethernet']['testGateway'] = self.test_mask['ethernet']['testGateway']
+        self.test_results['ethernet']['testMask'] = self.test_mask['ethernet']['testMask']
 
     def parse_results(self):
         self.LED_parse()

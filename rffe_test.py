@@ -76,7 +76,7 @@ while True:
             ip_sn_table = json.loads(ip_sn_table_str, object_pairs_hook=OrderedDict)
         else:
             ip_sn_table = OrderedDict()
-        ip_sn_table[next_sn] = OrderedDict([('ip',next_ip),('mac',next_mac),('result','pass' if result else 'fail')])
+        ip_sn_table[next_sn] = OrderedDict([('ip',uc.test_results['ethernet']['deployIP']),('mac',uc.test_results['ethernet']['mac']),('result','pass' if result else 'fail')])
         ip_sn_table_f.seek(0)
         json.dump(ip_sn_table, ip_sn_table_f, indent=4, ensure_ascii=True)
         ip_sn_table_f.truncate()

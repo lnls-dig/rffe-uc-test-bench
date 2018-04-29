@@ -32,7 +32,7 @@ class RFFEuC_Report(object):
                     tbl.add_hline()
                     tbl.add_row(bold('TestSW commit'), self.test_results['testSWCommit'])
                     tbl.add_hline()
-                    tbl.add_row(bold('Programmed IP'), self.test_results['ethernet']['ip'])
+                    tbl.add_row(bold('Programmed IP'), self.test_results['ethernet']['deployIP'])
                     tbl.add_hline()
                     tbl.add_row(bold('Programmed MAC'), self.test_results['ethernet']['mac'])
                     tbl.add_hline()
@@ -155,16 +155,19 @@ class RFFEuC_Report(object):
 
                 with self.doc.create(Subsubsection('TCP Server')):
                     self.doc.append(NoEscape(r'The RFFEuC will establish an Ethernet connection using the PHY interface chip and, if successfull, will create a TCP Server and listen on port 6791 for incoming connections. In order for the test to pass, an external client must connect to this port and send the following string: \textbf{\lq\lq Test msg!\rq\rq}, including a string terminating char (0x00) at the end.'))
+                    self.doc.append('It is important to notice that all boards in test phase are programmed with the same ethernet configuration, which can be seen below.')
 
             with self.doc.create(Subsection('Results')):
+                self.doc.append('Ethernet test configuration:')
                 with self.doc.create(Center()) as centered:
                     with centered.create(Tabular('|c|c|c|c|',row_height=1.2)) as tbl:
                         tbl.add_hline()
                         tbl.add_row(bold('MAC'), bold('IP'), bold('Gateway'), bold('Mask') )
                         tbl.add_hline()
-                        tbl.add_row(self.test_results['ethernet']['mac'], self.test_results['ethernet']['ip'], self.test_results['ethernet']['gateway'], self.test_results['ethernet']['mask'])
+                        tbl.add_row(self.test_results['ethernet']['mac'], self.test_results['ethernet']['testIP'], self.test_results['ethernet']['testGateway'], self.test_results['ethernet']['testMask'])
                         tbl.add_hline()
 
+                self.doc.append('Test results:')
                 with self.doc.create(Center()) as centered:
                     with centered.create(Tabular('|c|c|c|',row_height=1.2)) as tbl:
                         tbl.add_hline()
