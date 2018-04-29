@@ -15,8 +15,8 @@ from report import RFFEuC_Report
 
 class RFFEuC_Test(object):
 
-    TEST_FW = '../rffe-uc-test-fw/BUILD/rffe-uc-test-fw.bin'
-    DEPLOY_FW_PATH = '../rffe-deploy/rffe-uc-deploy/'
+    TEST_FW = '../rffe-uc-test-fw/rffe-uc-test-fw.bin'
+    DEPLOY_FW_PATH = '../rffe-uc-deploy-fw/'
 
     def __init__(self, eth_conf, serial_port, operator, board_pn, board_sn, test_mask_path='mask.json'):
         self.log = []
