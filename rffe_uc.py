@@ -16,7 +16,7 @@ class RFFEuC_Test(object):
 
     TEST_FW_PATH='../rffe-uc-test-fw/BUILD/rffe-uc-test-fw.bin'
 
-    def __init__(self, eth_conf, serial_port, operator, test_board_sn, board_sn, test_mask_path='mask.json'):
+    def __init__(self, eth_conf, serial_port, operator, board_pn, board_sn, test_mask_path='mask.json'):
         self.log = []
         self.serial_port = serial_port
         self.eth_ip = eth_conf[0]
@@ -30,11 +30,11 @@ class RFFEuC_Test(object):
         self.test_results = OrderedDict()
         self.test_results['operator'] = operator
         self.test_results['date'] = str(datetime.datetime.today())
-        self.test_results['testBoardSN'] = str(test_board_sn)
-        self.test_results['testBoardPN'] = 'RFFEuC_Tester:1.1'
-        self.test_results['boardSN'] = str(board_sn)
-        self.test_results['boardPN'] = 'RFFEuC:1.2'
+        self.test_results['testBoardSN'] = self.test_mask['testBoardSN']
+        self.test_results['testBoardPN'] = self.test_mask['testBoardPN']
         self.test_results['testSWCommit'] = subprocess.check_output(['git', 'describe', '--always']).strip().decode('ascii').upper()
+        self.test_results['boardSN'] = str(board_sn)
+        self.test_results['boardPN'] = str(board_pn)
 
     def eth_connect(self):
         self.eth_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

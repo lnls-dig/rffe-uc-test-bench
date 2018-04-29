@@ -1,4 +1,8 @@
 {
+    "testBoardPN" : "RFFEuC_Tester:1.1",
+
+    "testBoardSN" : "CN00001",
+
     "led" : {
         "mask" : 2.9
     },

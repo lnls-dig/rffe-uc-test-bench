@@ -65,9 +65,9 @@ if seq == '':
 
 while True:
     print('Testing -> Ip: {} MAC: {} SN: {}'.format(next_ip, next_mac, next_sn))
-    uc = RFFEuC_Test((next_ip, '255.255.255.0', ip_base+'1', next_mac), '/dev/ttyUSB0', op_name, 'TST0001', next_sn)
+    uc = RFFEuC_Test((next_ip, '255.255.255.0', ip_base+'1', next_mac), '/dev/ttyUSB0', op_name, 'RFFEuC:1.2', next_sn)
     result = uc.run()
-    print('Result: '+('PASS!' if result else 'FAIL!'))
+    print('\nResult: '+('PASS!' if result else 'FAIL!')+'\n')
 
     open_mode = 'r+' if ip_sn_table_path.is_file() else 'w+'
     with ip_sn_table_path.open(open_mode) as ip_sn_table_f:
