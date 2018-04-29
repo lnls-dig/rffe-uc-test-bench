@@ -176,6 +176,36 @@ class RFFEuC_Report(object):
                         tbl.add_row(ascii_str, hex_str, ('Pass' if self.test_results['ethernet']['result'] else 'Fail'), color=('green' if self.test_results['ethernet']['result'] else 'red'))
                         tbl.add_hline()
 
+    def Deploy_report(self):
+        self.doc.append(NoEscape(r'\clearpage'))
+        with self.doc.create(Section('Deploy')):
+            with self.doc.create(Subsection('Description')):
+                self.doc.append('Information about the deploy firmware programmed in the board.\n')
+                self.doc.append('If the board passed all the tests, it will be assigned a valid IP in the range 201-213, which corresponds to its slot in the rack.\n')
+                self.doc.append('If the board for some reason failed in any tests, it is treated as a spare part and programmed with a generic IP address (xxx.xxx.xxx.220), which should be ovewritten when replacing an old part.\n')
+
+            with self.doc.create(Subsection('Results')):
+                with self.doc.create(Center()) as centered:
+                    with centered.create(Tabular('|c|',row_height=1.0)) as tbl:
+                        tbl.add_hline()
+                        tbl.add_row((bold('General Result'),))
+                        tbl.add_hline()
+                        tbl.add_row((('Pass' if self.test_results['result'] else 'Fail'),), color=('green' if self.test_results['result'] else 'red') )
+                        tbl.add_hline()
+
+                self.doc.append('Deploy firmware information:')
+                with self.doc.create(Center()) as centered:
+                    with centered.create(Tabular('|c|c|',row_height=1.0)) as tbl:
+                        tbl.add_hline()
+                        tbl.add_row((bold('FW commit'),self.test_results['deployFWCommit']))
+                        tbl.add_hline()
+                        tbl.add_row((bold('IP'),self.test_results['deployIP']))
+                        tbl.add_hline()
+                        tbl.add_row((bold('Mask'),self.test_results['deployMask']))
+                        tbl.add_hline()
+                        tbl.add_row((bold('Gateway'),self.test_results['deployGateway']))
+                        tbl.add_hline()
+
     def generate(self, file_dir='./reports/', file_name='report1'):
         self.header()
         self.LED_report()
