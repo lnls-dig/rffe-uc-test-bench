@@ -15,7 +15,8 @@ from report import RFFEuC_Report
 
 class RFFEuC_Test(object):
 
-    TEST_FW_PATH='../rffe-uc-test-fw/BUILD/rffe-uc-test-fw.bin'
+    TEST_FW = '../rffe-uc-test-fw/BUILD/rffe-uc-test-fw.bin'
+    DEPLOY_FW_PATH = '../rffe-deploy/rffe-uc-deploy/'
 
     def __init__(self, eth_conf, serial_port, operator, board_pn, board_sn, test_mask_path='mask.json'):
         self.log = []
@@ -65,7 +66,7 @@ class RFFEuC_Test(object):
         print('Sucess!')
 
     def run(self, report_path='./reports/'):
-        self.program_fw(self.TEST_FW_PATH)
+        self.program_fw(self.TEST_FW)
 
         print('Starting tests...')
         self.log = []
@@ -259,9 +260,6 @@ if __name__ == '__main__':
     uc.run()
 
     #uc.dump('./test_report/results.json')
-
-    #pp = pprint.PrettyPrinter(indent=4)
-    #pp.pprint(uc.test_results)
 
     rep = RFFEuC_Report(uc.test_results)
     rep.generate(file_name='CN00001')
