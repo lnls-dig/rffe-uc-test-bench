@@ -63,11 +63,12 @@ class RFFEuC_Test(object):
     def program_fw(self, fw):
         programmer = LPCLink2()
         print('Programming firmware to LPC...')
-        programmer.program(fw)
-        print('Sucess!')
+        return programmer.program(fw)
 
     def run(self, report_path='./reports/'):
-        self.program_fw(self.TEST_FW)
+        if not self.program_fw(self.TEST_FW):
+            print('[ERROR] Could not program the test firmware!')
+            return False
 
         print('Starting tests...')
         self.log = []
@@ -257,11 +258,7 @@ class RFFEuC_Test(object):
             json.dump(self.test_results, dump_f, indent=4, ensure_ascii=True)
 
 if __name__ == '__main__':
-    uc = RFFEuC_Test(('10.0.18.111', '255.255.255.0', '10.0.18.1', 'DE:AD:BE:EF:12:34'), '/dev/ttyUSB0', 'Henrique Silva', 'CN00001','CN00001')
-    uc.run()
-
-    #uc.dump('./test_report/results.json')
-
-    rep = RFFEuC_Report(uc.test_results)
-    rep.generate(file_name='CN00001')
     uc = RFFEuC_Test(('10.0.18.111', '255.255.255.0', '10.0.18.1', 'DE:AD:BE:EF:12:34'), '/dev/ttyUSB0', 'Henrique Silva', 'CN00001','CN00001','0')
+    if uc.run():
+        rep = RFFEuC_Report(uc.test_results)
+        rep.generate(file_name='CN00001')
