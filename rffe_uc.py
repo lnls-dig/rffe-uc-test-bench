@@ -18,7 +18,7 @@ class RFFEuC_Test(object):
     TEST_FW = '../rffe-uc-test-fw/rffe-uc-test-fw.bin'
     DEPLOY_FW_PATH = '../rffe-uc-deploy-fw/'
 
-    def __init__(self, eth_conf, serial_port, operator, board_pn, board_sn, test_mask_path='mask.json'):
+    def __init__(self, eth_conf, serial_port, operator, board_pn, board_sn, manuf_sn, test_mask_path='mask.json'):
         self.log = []
         self.serial_port = serial_port
         self.eth_ip = eth_conf[0]
@@ -37,6 +37,7 @@ class RFFEuC_Test(object):
         self.test_results['testSWCommit'] = subprocess.check_output(['git', 'describe', '--always']).strip().decode('ascii').upper()
         self.test_results['boardSN'] = str(board_sn)
         self.test_results['boardPN'] = str(board_pn)
+        self.test_results['manufSN'] = str(manuf_sn)
 
     def eth_connect(self):
         self.eth_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -263,3 +264,4 @@ if __name__ == '__main__':
 
     rep = RFFEuC_Report(uc.test_results)
     rep.generate(file_name='CN00001')
+    uc = RFFEuC_Test(('10.0.18.111', '255.255.255.0', '10.0.18.1', 'DE:AD:BE:EF:12:34'), '/dev/ttyUSB0', 'Henrique Silva', 'CN00001','CN00001','0')

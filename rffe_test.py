@@ -40,22 +40,32 @@ try:
         next_ip = increment_ip(last_ip)
         last_mac = ip_sn_table[last_sn]['mac'].replace(':','')
         next_mac = increment_mac(last_mac)
+        last_manuf_sn = ip_sn_table[last_sn]['manufSN']
+        next_manuf_sn = increment_ip(last_manuf_sn)
+
 except FileNotFoundError:
     print('"ip_sn_table.json file not found! A new one will be created')
     next_sn = 'CN00001'
     next_ip = ip_base+'201'
     next_mac = '20000000001'
+    next_manuf_sn = '000000000000000000000'
 
 op_name = input('Operator name: ')
-override = input('Override initial board informations? (default:"'+next_sn+'" "'+next_ip+'" "'+next_mac+'"): [y/N] ')
+override = input('Override initial board informations? (default: SN:"'+next_sn+'" ManufSN:"'+next_manuf_sn+'" IP:"'+next_ip+'" MAC"'+next_mac+'"): [y/N] ')
 if override.lower() == 'y':
     override_sn = input('SN: ')
     if override_sn != '':
         next_sn = override_sn
-        override_ip = input('IP: ')
+
+    override_manuf_sn = input('ManufSN: ')
+    if override_manuf_sn != '':
+        next_manuf_sn = override_manuf_sn
+
+    override_ip = input('IP: ')
     if override_ip != '':
         next_ip = override_ip
-        override_mac = input('MAC: ')
+
+    override_mac = input('MAC: ')
     if override_mac != '':
         next_mac = override_mac
 
@@ -65,8 +75,8 @@ if seq == '':
     seq = 'c'
 
 while True:
-    print('Testing -> Ip: {} MAC: {} SN: {}'.format(next_ip, next_mac, next_sn))
-    uc = RFFEuC_Test((next_ip, '255.255.255.0', ip_base+'1', next_mac), '/dev/ttyUSB0', op_name, 'RFFEuC:1.2', next_sn)
+    print('Testing -> Ip: {} MAC: {} SN: {} Manuf: {}'.format(next_ip, next_mac, next_sn, next_manuf_sn))
+    uc = RFFEuC_Test((next_ip, '255.255.255.0', ip_base+'1', next_mac), '/dev/ttyUSB0', op_name, 'RFFEuC:1.2', next_sn, next_manuf_sn)
     result = uc.run()
     print('\nResult: '+('PASS!' if result else 'FAIL!')+'\n')
 
@@ -77,14 +87,14 @@ while True:
             ip_sn_table = json.loads(ip_sn_table_str, object_pairs_hook=OrderedDict)
         else:
             ip_sn_table = OrderedDict()
-        ip_sn_table[next_sn] = OrderedDict([('ip',uc.test_results['ethernet']['deployIP']),('mac',uc.test_results['ethernet']['mac']),('result','pass' if result else 'fail')])
+        ip_sn_table[next_sn] = OrderedDict([('ip',uc.test_results['ethernet']['deployIP']),('mac',uc.test_results['ethernet']['mac']),('result','pass' if result else 'fail'),('manufSN', next_manuf_sn)])
         ip_sn_table_f.seek(0)
         json.dump(ip_sn_table, ip_sn_table_f, indent=4, ensure_ascii=True)
         ip_sn_table_f.truncate()
 
     if seq == 'o':
         break
-    i = input('Start next test? (IP:{} MAC:{} SN:{}) [Y/n][r]epeat: '.format(increment_ip(next_ip),increment_mac(next_mac),increment(next_sn)))
+    i = input('Start next test? (IP:{} MAC:{} SN:{} ManufSN:{}) [Y/n][r]epeat: '.format(increment_ip(next_ip),increment_mac(next_mac),increment(next_sn),increment(next_manuf_sn)))
     if i.lower() == 'n':
         break
 
@@ -92,3 +102,4 @@ while True:
         next_ip = increment_ip(next_ip)
         next_mac = increment_mac(next_mac)
         next_sn = increment(next_sn)
+        next_manuf_sn = increment(next_manuf_sn)

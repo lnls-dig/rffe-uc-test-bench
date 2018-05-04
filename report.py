@@ -26,6 +26,8 @@ class RFFEuC_Report(object):
                     tbl.add_hline()
                     tbl.add_row(bold('Operator'), self.test_results['operator'])
                     tbl.add_hline()
+                    tbl.add_row(bold('Manufacturer SN'), self.test_results['manufSN'])
+                    tbl.add_hline()
                     tbl.add_row(bold('Board PN/SN'), ':'.join([self.test_results['boardPN'],self.test_results['boardSN']]))
                     tbl.add_hline()
                     tbl.add_row(bold('Testboard PN/SN'), ':'.join([self.test_results['testBoardPN'],self.test_results['testBoardSN']]))
