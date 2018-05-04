@@ -42,7 +42,7 @@ class RFFEuC_Test(object):
     def eth_connect(self):
         self.eth_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         #3sec timeout
-        self.eth_sock.settimeout(5.0)
+        self.eth_sock.settimeout(3.0)
         try:
             print('Connecting to {}'.format(self.test_mask['ethernet']['testIP']))
             self.eth_sock.connect((self.test_mask['ethernet']['testIP'], 6791))
@@ -72,7 +72,7 @@ class RFFEuC_Test(object):
 
         print('Starting tests...')
         self.log = []
-        ser = serial.Serial(self.serial_port, 115200)
+        ser = serial.Serial(self.serial_port, 115200, timeout=3)
         ser.flush()
 
         #Reset RFFEuC
@@ -88,6 +88,8 @@ class RFFEuC_Test(object):
 
         while True:
             ln = ser.readline().decode('ascii')
+            if not ln:
+                continue
             self.log.append(ln)
             if (ln.find('Insert MAC:') > -1):
                 ser.write(bytes(self.eth_mac+'\r\n','ascii'))
@@ -97,8 +99,13 @@ class RFFEuC_Test(object):
                 ser.write(bytes(self.test_mask['ethernet']['testMask']+'\n','ascii'))
             elif (ln.find('Insert Gateway:') > -1):
                 ser.write(bytes(self.test_mask['ethernet']['testGateway']+'\n','ascii'))
-            elif (ln.find('Listening on port: 6791') > -1):
-                if not self.eth_test():
+            elif (ln.find('Initializing ETH stack') > -1):
+                ln = ser.read(150).decode('ascii')
+                self.log.append(ln)
+                if (ln.find('Listening on port: 6791') > -1):
+                    if not self.eth_test():
+                        break
+                else:
                     break
             elif (ln.find('End of tests!') > -1):
                 break
