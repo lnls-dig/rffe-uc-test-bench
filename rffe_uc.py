@@ -62,7 +62,7 @@ class RFFEuC_Test(object):
 
     def program_fw(self, fw):
         programmer = LPCLink2()
-        print('Programming firmware to LPC...')
+        print('Programming firmware '+fw+' to LPC...')
         return programmer.program(fw)
 
     def run(self, report_path='./reports/'):
@@ -111,16 +111,6 @@ class RFFEuC_Test(object):
                 break
 
         result = self.parse_results()
-        if result:
-            self.program_fw(self.DEPLOY_FW_PATH+'/'+self.eth_ip+'/rffe_uc_fw.bin')
-            self.test_results['ethernet']['deployIP'] = self.eth_ip
-            self.test_results['ethernet']['deployMask'] = self.eth_mask
-            self.test_results['ethernet']['deployGateway'] = self.eth_gateway
-        else:
-            self.program_fw(self.DEPLOY_FW_PATH+'/'+self.test_mask['ethernet']['genericIP']+'/rffe_uc_fw.bin')
-            self.test_results['ethernet']['deployIP'] = self.test_mask['ethernet']['genericIP']
-            self.test_results['ethernet']['deployMask'] = self.test_mask['ethernet']['genericMask']
-            self.test_results['ethernet']['deployGateway'] = self.test_mask['ethernet']['genericGateway']
 
         #Reset RFFEuC
         ser.setDTR(True)
@@ -132,6 +122,15 @@ class RFFEuC_Test(object):
         #Store ETH information on FERAM
         ser.write(b'r')
         ln = ser.read(50)
+
+        if result:
+            self.test_results['ethernet']['deployIP'] = self.eth_ip
+            self.test_results['ethernet']['deployMask'] = self.eth_mask
+            self.test_results['ethernet']['deployGateway'] = self.eth_gateway
+        else:
+            self.test_results['ethernet']['deployIP'] = self.test_mask['ethernet']['genericIP']
+            self.test_results['ethernet']['deployMask'] = self.test_mask['ethernet']['genericMask']
+            self.test_results['ethernet']['deployGateway'] = self.test_mask['ethernet']['genericGateway']
 
         while True:
             ln = ser.readline().decode('ascii')
@@ -146,6 +145,17 @@ class RFFEuC_Test(object):
                 ser.write(bytes(self.test_results['ethernet']['deployGateway']+'\n','ascii'))
             elif (ln.find('End of tests!') > -1):
                 break
+
+        if result:
+            if self.program_fw(self.DEPLOY_FW_PATH+'/'+self.eth_ip+'/V2_0_0.bin'):
+                print('Deploy firmware programmed!')
+            else:
+                print('Failed to program deploy firmware!')
+        else:
+            if self.program_fw(self.DEPLOY_FW_PATH+'/'+self.test_mask['ethernet']['genericIP']+'/V2_0_0.bin'):
+                print('Deploy firmware programmed!')
+            else:
+                print('Failed to program deploy firmware!')
 
         self.report(report_path, self.test_results['boardSN'])
         return result
