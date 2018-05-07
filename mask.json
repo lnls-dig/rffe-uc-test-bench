@@ -23,8 +23,8 @@
         "genericIP" : "192.168.2.220",
         "genericGateway" : "192.168.2.1",
         "genericMask" : "255.255.255.0",
-        "testIP" : "10.0.18.200",
-        "testGateway" : "10.0.18.1",
+        "testIP" : "192.168.0.200",
+        "testGateway" : "192.168.0.1",
         "testMask" : "255.255.255.0"
     }
 }
