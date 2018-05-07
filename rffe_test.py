@@ -41,7 +41,7 @@ try:
         last_mac = ip_sn_table[last_sn]['mac'].replace(':','')
         next_mac = increment_mac(last_mac)
         last_manuf_sn = ip_sn_table[last_sn]['manufSN']
-        next_manuf_sn = increment_ip(last_manuf_sn)
+        next_manuf_sn = increment(last_manuf_sn)
 
 except FileNotFoundError:
     print('"ip_sn_table.json file not found! A new one will be created')
